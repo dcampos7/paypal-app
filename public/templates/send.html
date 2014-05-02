@@ -1,0 +1,48 @@
+
+<div class="header">Send Money</div>
+
+<div class="main">
+	<form action="/success" method="post" name="send-form" id="send-form">
+		<div class="form-group">
+			<div class="form-control" />
+				To: <input type="email" class="stripped validate_email" name="to" />
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="form-control" style="display:inline-block;" />
+				Amount: <span class="symbol"></span><input type="text" class="stripped validate_number" name="amount" />
+				<select class="currency"></select>
+				<input type="hidden" name="symbol" id="symbol" class="misc"/>
+				<input type="hidden" name="code" id="code" class="misc" />
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="form-control" style="height:63px" />
+				<div class="message">Message (optional): </div><textarea type="text" class="stripped validate_text optional" name="message" rows="2"></textarea>
+			</div>
+		</div>
+		<div class="payment-label">What's this payment for?</div>
+		<div class="form-group">
+			<div class="form-control" style="height:70px" />
+				<div class="radio">
+					<label>
+				    	<input type="radio" name="payment" class="payment" id="familyfriends" value="familyfriends" />
+				    	<div>I'm sending money to family or friends</div>
+					</label>
+				</div>
+				<div class="break"></div>
+				<div class="radio">
+					<label>
+						<input type="radio" name="payment" class="payment" id="goodsservices" value="goodsservices" />
+						<div>I'm paying for goods or services</div>
+					</label>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+
+<div class="footer">
+	<button type="button" class="btn btn-default btn-md" id="clear">Clear</button>
+	<button type="button" class="btn btn-default btn-md" id="next">Next</button>
+</div>

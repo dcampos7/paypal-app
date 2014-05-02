@@ -1,0 +1,117 @@
+		<script>
+
+			var refresh = function(d) {
+				$(d).parent().parent().removeClass("has-success has-error has-feedback");
+				$(d).parent().children().remove('.glyphicon');
+			}
+
+			var valid = function(d) {
+				$(d).parent().parent().addClass("has-success has-feedback");
+				$(d).parent().append('<span class="glyphicon glyphicon-ok form-control-feedback" style="top:0"></span>');
+			}
+
+			var invalid = function(d) {
+				$(d).parent().parent().addClass("has-error has-feedback");
+				$(d).parent().append('<span class="glyphicon glyphicon-remove form-control-feedback" style="top:0"></span>');
+			}
+
+			$('.validate_email').change(function() {
+				refresh(this);
+
+				var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+				this.value != "" && re.test(this.value) ? valid(this) : invalid(this);
+			});
+
+			$('.validate_number').change(function() {
+				refresh(this);
+				this.value != "" && !isNaN(this.value) && parseFloat(this.value) > 0 ? valid(this) : invalid(this);
+			});
+
+			$('.validate_text').change(function() {
+				refresh(this);
+				if (this.value != "") { valid(this); }
+			});
+
+			$('#send').click(function() {
+				window.location.href = "/send";
+			});
+
+			$('#history').click(function() {
+				window.location.href = "/history";
+			});
+
+			$('#clear').click(function() {
+				var inputs = $('input');
+				for (var input in inputs) {
+					inputs[input].value = "";
+				}
+				$('.glyphicon').remove();
+				$('.form-group, div').removeClass("has-success has-error has-feedback checked");
+			});
+
+			$('#next').click(function() {
+				var elements = document.forms['send-form'].elements;
+				count = 0;
+				for (var element in elements) {
+					if (elements[element].className.indexOf("validate_email") > -1) {
+						var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+						elements[element].value != "" && re.test(elements[element].value) ? valid(elements[element]) : invalid(elements[element]);
+					}
+					if (elements[element].className.indexOf("validate_number") > -1) {
+						elements[element].value != "" && !isNaN(elements[element].value) && parseFloat(elements[element].value) > 0 ? valid(elements[element]) : invalid(elements[element]);
+					}
+					if (elements[element].className.indexOf("validate_text") > -1) {
+						if (elements[element].value != "") { valid(elements[element]); }
+					}
+
+					if (elements[element].className.indexOf("optional") == -1 && (elements[element].value == "" || elements[element].className.indexOf('has-error') > -1)) {
+						alert("Please fill out all required fields correctly.");
+						return false;
+					}
+
+					count++;
+		        	if (count == elements.length) {
+		        		break;
+		        	}
+				}
+
+				$('body').append('<div class="overlay"></div>');
+				$('body').append('<img src="img/loading.gif" class="loading" />');
+
+				setTimeout(function() {
+					$('.overlay').remove();
+					$('.loading').remove();
+					$('#send-form').submit();
+				}, 2500);
+			});
+
+			$('#back').click(function() {
+				window.location.href = "/";
+			});
+
+			$('.payment').click(function() {
+				$('.radio div .glyphicon').remove();
+				$('.checked').removeClass("checked");
+				$(this).parent().parent().parent().parent().addClass("has-success");
+				$(this).parent().children('div').append('<span class="glyphicon glyphicon-ok payment-glyphicon"></span>');
+				$(this).parent().children('div').addClass('checked');			
+			});
+
+			$('.currency').change(function() {
+				$('.symbol').text($(this).find(":selected").val());
+				$('#code').val($(this).find(":selected").text());
+				$('#symbol').val($(this).find(":selected").val());
+			});
+
+			if (location.pathname == "/send") {
+				$('.currency').find('option:contains("USD")').attr("selected",true);
+				$('.symbol').text($('.currency').find('option:contains("USD")').val());
+				$('#code').val($('.currency').find('option:contains("USD")').text());
+				$('#symbol').val($('.currency').find('option:contains("USD")').val());
+			}
+
+		</script>
+	</body>
+</html>
