@@ -1,10 +1,10 @@
 // route function
-function route(handle, pathname, request, response) {
+function route(handle, pathname, request, response, connection) {
 	var type = pathname.split("/")[1];
 
 	// handle most pages
 	if (typeof handle[pathname] === 'function') {
-		handle[pathname](request, response);
+		handle[pathname](request, response, connection);
 	}
 	// handle support files: images, css, etc
 	else if (type == 'img' || type == 'css' || type == 'fonts') {

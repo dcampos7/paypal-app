@@ -4,17 +4,16 @@ var fs = require('fs');
 var cheerio = require('cheerio');
 var querystring = require('querystring');
 var helpers = require("./helpers");
-var datafile = require("./datafile");
 
 // generate home page
-function home(request, response) {
+function home(request, response, connection) {
 	response.writeHead(200, {"Content-Type": "text/html"});
 	response.write(helpers.renderStatic('home.html'));
 	response.end();
 }
 
 // generate send page
-function send(request, response) {
+function send(request, response, connection) {
 	options = {
 		host: 'www.xe.com',
 		path: '/symbols.php'
@@ -64,20 +63,43 @@ function send(request, response) {
 }
 
 // generate success page
-function success(request, response) {
+function success(request, response, connection) {
+
 	response.writeHead(200, {"Content-Type": "text/html"});
+
 	if (request.method == "POST") {
+
 		var body = '';
         request.on('data', function (data) {
             body += data;
         });
+
         request.on('end', function () {
-            var POST = querystring.parse(body);
+
+        	var today = new Date();
+			var date  = String(today.getMonth()+1) + "/" + today.getDate() + "/" + today.getFullYear();
+
+			var POST = querystring.parse(body);
+
+			connection.query('INSERT INTO transactions (user_id, date, recipient, amount, symbol, code, payment, message) VALUES (1,"'
+				+ date + '","'
+				+ String(POST['recipient']) + '",'
+				+ String(POST['amount']) + ',"'
+				+ String(POST['symbol']) + '","'
+				+ String(POST['code']) + '","'
+				+ String(POST['payment']) + '","'
+				+ String(POST['message']) + '")',
+				function(err, rows) {
+					if (err) throw err;
+					connection.end();
+			});
+
             var page = String(fs.readFileSync('./templates/success.html'));
             page = page.replace('<span class="amount"></span>', '<span class="amount">'+POST['symbol']+' '+POST['amount']+' '+POST['code']+'</span>');
-            page = page.replace('<span class="to"></span>', '<span class="to">'+POST['to']+'</span>');
+            page = page.replace('<span class="recipient"></span>', '<span class="recipient">'+POST['recipient']+'</span>');
             response.write(helpers.renderDynamic(page));
 			response.end();
+
         });
 	}
 	else {
@@ -87,22 +109,29 @@ function success(request, response) {
 }
 
 // generate history page
-function history(request, response) {
-	// mock data
-	var transactions = datafile.transactions();
+function history(request, response, connection) {
 
-	var data = "";
-	transactions.map(function(transaction) {
-		data += '<tr><td>'+transaction['date']+'</td><td>'+transaction['to']+'</td><td>'+transaction['currency']+' '+transaction['amount']+'</td></tr>';
+	connection.query('SELECT date, recipient, symbol, amount FROM transactions WHERE user_id=1', function (err, transactions) {
+
+	    if (err) throw err;
+
+	   	var data = "";
+		transactions.map(function(transaction) {
+			data += '<tr><td>'+transaction.date+'</td><td>'+transaction.recipient+'</td><td>'+transaction.symbol+' '+transaction.amount+'</td></tr>';
+		});
+
+		var page = String(fs.readFileSync('./templates/history.html'));
+		page = page.replace('<table class="transactions"></table>', '<table class="transactions">'+data+'</table>')
+
+		// write page
+		response.writeHead(200, {"Content-Type": "text/html"});
+		response.write(helpers.renderDynamic(page));
+		response.end();
+
+		connection.end();
+
 	});
 
-	var page = String(fs.readFileSync('./templates/history.html'));
-	page = page.replace('<table class="transactions"></table>', '<table class="transactions">'+data+'</table>')
-
-	// write page
-	response.writeHead(200, {"Content-Type": "text/html"});
-	response.write(helpers.renderDynamic(page));
-	response.end();
 }
 
 // load page parts

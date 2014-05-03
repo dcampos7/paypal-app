@@ -42,7 +42,7 @@
 			});
 
 			$('#clear').click(function() {
-				var inputs = $('input');
+				var inputs = $('input, textarea');
 				for (var input in inputs) {
 					inputs[input].value = "";
 				}

@@ -141,6 +141,6 @@ input[type="radio"] {
 	width: 33%;
 }
 
-.to, .amount {
+.recipient, .amount {
 	font-weight: bold;
 }

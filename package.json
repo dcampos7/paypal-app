@@ -1,0 +1,13 @@
+{
+  "name": "paypal-app",
+  "description": "Take home assignment",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "cheerio": "0.15.0",
+    "url": "0.10.1",
+    "http": "0.0.0",
+    "querystring": "0.2.0",
+    "mysql": "2.2.0"
+  }
+}
